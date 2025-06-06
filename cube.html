@@ -167,13 +167,27 @@ function solve(){
     if(animating) return;
     const alg=cubeState.solve();
     moveQueue=algoToMoves(alg);
-    playMoves(moveQueue.slice());
+    // nie odtwarzaj automatycznie, aby mozna bylo uzywac przycisku Krok
+    // playMoves(moveQueue.slice());
 }
 
+let currentMove=null;
+let remainingTurns=0;
+
 function step(){
-    if(animating||moveQueue.length===0) return;
-    const m = moveQueue.shift();
-    playMoves([m]);
+    if(animating) return;
+    if(remainingTurns===0){
+        if(moveQueue.length===0) return;
+        currentMove = moveQueue.shift();
+        remainingTurns = currentMove.turns;
+    }
+    rotateLayer(currentMove.axis, currentMove.index, currentMove.dir, ()=>{
+        remainingTurns--;
+        if(remainingTurns===0){
+            cubeState.move(currentMove.notation);
+            currentMove = null;
+        }
+    });
 }
 
 document.getElementById('scramble').onclick=scramble;
