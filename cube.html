@@ -8,6 +8,7 @@ body { margin:0; background:#000; overflow:hidden; }
 #canvas { width:100vw; height:100vh; display:block; }
 #ui { position:absolute; top:10px; left:10px; z-index:10; }
 button { margin-right:5px; padding:5px 10px; }
+#counter { color:#fff; margin-left:5px; }
 </style>
 </head>
 <body>
@@ -15,6 +16,7 @@ button { margin-right:5px; padding:5px 10px; }
 <button id="scramble">Pomieszaj</button>
 <button id="solve">Rozwiąż</button>
 <button id="step">Krok</button>
+<span id="counter"></span>
 </div>
 <canvas id="canvas"></canvas>
 <script src="https://unpkg.com/cubejs@1.3.2/lib/cube.js"></script>
@@ -77,6 +79,14 @@ let moveQueue=[];
 let animating=false;
 let cubeState=new Cube();
 Cube.initSolver();
+let totalMoves=0;
+let executedMoves=0;
+const counterSpan=document.getElementById('counter');
+
+function updateCounter(){
+    counterSpan.textContent=`${executedMoves}/${totalMoves}`;
+}
+updateCounter();
 const moveMap={
     U:{axis:'y',index:1,dir:-1},
     D:{axis:'y',index:-1,dir:1},
@@ -138,6 +148,9 @@ function rotateLayer(axis,index,dir,callback){
 function scramble(){
     const alg=Cube.scramble();
     moveQueue=algoToMoves(alg);
+    totalMoves=0;
+    executedMoves=0;
+    updateCounter();
     playMoves(moveQueue.slice());
 }
 
@@ -167,6 +180,9 @@ function solve(){
     if(animating) return;
     const alg=cubeState.solve();
     moveQueue=algoToMoves(alg);
+    totalMoves=moveQueue.reduce((s,m)=>s+m.turns,0);
+    executedMoves=0;
+    updateCounter();
     // nie odtwarzaj automatycznie, aby mozna bylo uzywac przycisku Krok
     // playMoves(moveQueue.slice());
 }
@@ -183,6 +199,8 @@ function step(){
     }
     rotateLayer(currentMove.axis, currentMove.index, currentMove.dir, ()=>{
         remainingTurns--;
+        executedMoves++;
+        updateCounter();
         if(remainingTurns===0){
             cubeState.move(currentMove.notation);
             currentMove = null;
