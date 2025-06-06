@@ -4,7 +4,7 @@ Ta aplikacja prezentuje interaktywną kostkę Rubika zbudowaną w bibliotece **t
 
 ## Uruchomienie
 
-1. Otwórz plik `index.html` w przeglądarce wspierającej moduły ES6.
+1. Otwórz plik `index.html` w przeglądarce wspierającej moduły ES6. Cała logika kostki jest osadzona w tym pliku, więc nie potrzeba dodatkowych skryptów.
 2. Po załadowaniu strony wybierz docelowy rozmiar kostki z listy i użyj przycisków, aby mieszać, rozwiązywać lub przeglądać instrukcje.
 
 ## Pliki
