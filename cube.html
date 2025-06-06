@@ -17,6 +17,8 @@ button { margin-right:5px; padding:5px 10px; }
 <button id="step">Krok</button>
 </div>
 <canvas id="canvas"></canvas>
+<script src="https://unpkg.com/cubejs@1.3.2/lib/cube.js"></script>
+<script src="https://unpkg.com/cubejs@1.3.2/lib/solve.js"></script>
 <script type="module">
 import * as THREE from 'https://unpkg.com/three@0.154/build/three.module.js';
 
@@ -73,7 +75,30 @@ for(let x=-1;x<=1;x++){
 
 let moveQueue=[];
 let animating=false;
-let solving=false;
+let cubeState=new Cube();
+Cube.initSolver();
+const moveMap={
+    U:{axis:'y',index:1,dir:-1},
+    D:{axis:'y',index:-1,dir:1},
+    F:{axis:'z',index:1,dir:-1},
+    B:{axis:'z',index:-1,dir:1},
+    R:{axis:'x',index:1,dir:1},
+    L:{axis:'x',index:-1,dir:-1}
+};
+
+function parseMove(move){
+    const face=move[0];
+    const spec=moveMap[face];
+    if(!spec) return null;
+    let dir=spec.dir;
+    if(move.includes("'")) dir=-dir;
+    const turns=move.includes('2')?2:1;
+    return {axis:spec.axis,index:spec.index,dir,turns,notation:move};
+}
+
+function algoToMoves(alg){
+    return alg.trim().split(/\s+/).map(parseMove).filter(m=>m);
+}
 
 function rotateLayer(axis,index,dir,callback){
     const group = new THREE.Group();
@@ -111,14 +136,8 @@ function rotateLayer(axis,index,dir,callback){
 }
 
 function scramble(){
-    const faces=['x','y','z'];
-    moveQueue=[];
-    for(let i=0;i<20;i++){
-        const axis=faces[Math.floor(Math.random()*3)];
-        const index=[-1,0,1][Math.floor(Math.random()*3)];
-        const dir=Math.random()>0.5?1:-1;
-        moveQueue.push({axis,index,dir});
-    }
+    const alg=Cube.scramble();
+    moveQueue=algoToMoves(alg);
     playMoves(moveQueue.slice());
 }
 
@@ -129,21 +148,32 @@ function playMoves(moves){
     }
     if(animating) return;
     const m = moves.shift();
-    rotateLayer(m.axis,m.index,m.dir,()=>playMoves(moves));
+    let remaining=m.turns;
+    function turn(){
+        rotateLayer(m.axis,m.index,m.dir,()=>{
+            remaining--;
+            if(remaining>0){
+                turn();
+            }else{
+                cubeState.move(m.notation);
+                playMoves(moves);
+            }
+        });
+    }
+    turn();
 }
 
 function solve(){
-    if(animating||moveQueue.length===0) return;
-    solving=true;
-    const rev = moveQueue.slice().reverse().map(m=>({axis:m.axis,index:m.index,dir:-m.dir}));
-    playMoves(rev);
-    moveQueue=[];
+    if(animating) return;
+    const alg=cubeState.solve();
+    moveQueue=algoToMoves(alg);
+    playMoves(moveQueue.slice());
 }
 
 function step(){
     if(animating||moveQueue.length===0) return;
     const m = moveQueue.shift();
-    rotateLayer(m.axis,m.index,m.dir);
+    playMoves([m]);
 }
 
 document.getElementById('scramble').onclick=scramble;
