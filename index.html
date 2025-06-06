@@ -53,6 +53,12 @@
         <div class="status-item">
             <button id="learn">Nauka</button>
         </div>
+        <div class="status-item">
+            <button id="step-back">◀ Krok</button>
+        </div>
+        <div class="status-item">
+            <button id="step-forward">Krok ▶</button>
+        </div>
     </div>
     <div id="instructions">
         <h2>Podstawowe kroki układania</h2>
@@ -91,8 +97,8 @@ class t{addEventListener(t,e){void 0===this._listeners&&(this._listeners={});con
         closeLearn.addEventListener('click', () => { instr.style.display = 'none'; });
 
         const steps = Array.from(instr.querySelectorAll('li'));
-        const prev = document.getElementById('prev-step');
-        const next = document.getElementById('next-step');
+        const prev = document.getElementById('step-back');
+        const next = document.getElementById('step-forward');
         const hintBtn = document.getElementById('hint-btn');
         const hint = document.getElementById('hint-text');
         let current = 0;
@@ -108,9 +114,10 @@ class t{addEventListener(t,e){void 0===this._listeners&&(this._listeners={});con
     </script>
 <script>
 const mixBtn = document.getElementById('disorder');
-const prevArrow = document.getElementById('prev-step');
-const nextArrow = document.getElementById('next-step');
+const prevArrow = document.getElementById('step-back');
+const nextArrow = document.getElementById('step-forward');
 const solveBtn = document.getElementById('restore');
+if (window.Bo) { Bo.load = () => {}; }
 let moves = [];
 let index = 0;
 function randomAxis(){
