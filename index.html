@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <title>Kostka Rubika</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        h1 {
+            position: fixed;
+            right: 5px;
+            bottom: 10px;
+            font-size: 18px;
+            font-weight: normal;
+            writing-mode: vertical-rl;
+        }
+        #container { height: 100vh; width: 100vw; }
+        #status {
+            font-size: 18px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .status-item { margin-left: 20px; display: flex; align-items: center; }
+        #order-select { outline: none; }
+        #disorder { width: 50px; }
+        #restore { width: 70px; }
+        #learn { width: 70px; }
+        #instructions { display: none; position: fixed; top: 10%; left: 10%; width: 80%; height: 80%; overflow: auto; background: rgba(255,255,255,0.9); padding: 20px; }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="status">
+        <h1>Kostka</h1>
+        <div class="status-item">
+            <label for="finish">Stan: </label>
+            <span id="finish"></span>
+        </div>
+        <div class="status-item">
+            <label for="order-select">Podział: </label>
+            <select id="order-select"></select>
+        </div>
+        <div class="status-item">
+            <button id="restore">Rozwiąż</button>
+        </div>
+        <div class="status-item">
+            <button id="disorder">Pomieszaj</button>
+        </div>
+        <div class="status-item">
+            <button id="learn">Nauka</button>
+        </div>
+    </div>
+    <div id="instructions">
+        <h2>Podstawowe kroki układania</h2>
+        <ol>
+            <li>Ułóż krzyż na pierwszej warstwie.</li>
+            <li>Ułóż narożniki pierwszej warstwy.</li>
+            <li>Ułóż krawędzie środkowej warstwy.</li>
+            <li>Uformuj krzyż na ostatniej warstwie.</li>
+            <li>Ustaw właściwie narożniki ostatniej warstwy.</li>
+            <li>Obróć krawędzie ostatniej warstwy.</li>
+        </ol>
+        <button id="close-learn">Zamknij</button>
+    </div>
+    <script type="module" src="./rubiks.js"></script>
+    <script type="module">
+        const orderSelect = document.getElementById('order-select');
+        for (let i = 4; i <= 20; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = i;
+            if (i === 4) opt.selected = true;
+            orderSelect.appendChild(opt);
+        }
+
+        const learnBtn = document.getElementById('learn');
+        const instr = document.getElementById('instructions');
+        const closeLearn = document.getElementById('close-learn');
+        learnBtn.addEventListener('click', () => { instr.style.display = 'block'; });
+        closeLearn.addEventListener('click', () => { instr.style.display = 'none'; });
+    </script>
+</body>
+</html>

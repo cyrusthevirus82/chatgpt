@@ -1,29 +1,15 @@
-# Ollama Agent
+# Trójwymiarowa kostka Rubika
 
-Ten prosty skrypt w Pythonie prezentuje, jak można zbudować agenta korzystającego z lokalnego modelu Ollama. Agent potrafi wyszukiwać informacje w internecie, pobierać treść stron oraz generować podsumowania z użyciem lokalnego modelu językowego.
-
-## Wymagania
-
-- Python 3.11+
-- Zainstalowany serwer Ollama działający lokalnie (domyślnie na `http://localhost:11434`).
-- Pakiety `ollama` i `requests`.
-
-Można je zainstalować poleceniem:
-
-```bash
-pip install ollama requests
-```
+Ta aplikacja prezentuje interaktywną kostkę Rubika zbudowaną w bibliotece **three.js**. Można wybrać rozmiar kostki od 4×4×4 do 20×20×20 i skorzystać z wbudowanego trybu nauki, który prezentuje podstawowe kroki układania.
 
 ## Uruchomienie
 
-Aby uruchomić agenta:
+1. Otwórz plik `index.html` w przeglądarce wspierającej moduły ES6.
+2. Po załadowaniu strony wybierz docelowy rozmiar kostki z listy i użyj przycisków, aby mieszać, rozwiązywać lub przeglądać instrukcje.
 
-```bash
-python ollama_agent.py
-```
+## Pliki
 
-Po uruchomieniu należy podać zapytanie. Agent spróbuje znaleźć kilka wyników w sieci, pobierze treści z pierwszych linków, a następnie poprosi lokalny model o podsumowanie i odpowiedź.
+- `index.html` – główna strona aplikacji.
+- `rubiks.js` – skompilowany kod obsługujący logikę kostki (pochodzi z projektu [pengfeiw/rubiks-cube](https://github.com/pengfeiw/rubiks-cube)).
 
-## Uwaga
-
-Skrypt wykorzystuje darmowe API DuckDuckGo (https://ddg-api.herokuapp.com) do pobierania wyników wyszukiwania. W produkcyjnych warunkach warto rozważyć użycie bardziej stabilnego i oficjalnego API wyszukiwarki.
+Kod pochodzi z projektu na licencji MIT i został dostosowany do potrzeb przykładu.
