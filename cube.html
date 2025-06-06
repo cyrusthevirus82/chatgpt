@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Mini Kostka Rubika</title>
+<style>
+body { margin:0; background:#000; overflow:hidden; }
+#canvas { width:100vw; height:100vh; display:block; }
+#ui { position:absolute; top:10px; left:10px; z-index:10; }
+button { margin-right:5px; padding:5px 10px; }
+</style>
+</head>
+<body>
+<div id="ui">
+<button id="scramble">Pomieszaj</button>
+<button id="solve">Rozwiąż</button>
+<button id="step">Krok</button>
+</div>
+<canvas id="canvas"></canvas>
+<script type="module">
+import * as THREE from 'https://unpkg.com/three@0.154/build/three.module.js';
+
+const canvas = document.getElementById('canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(5,5,5);
+camera.lookAt(0,0,0);
+
+const light = new THREE.DirectionalLight(0xffffff,1);
+light.position.set(5,10,7);
+scene.add(light);
+
+const cubies = [];
+const size = 0.95;
+const gap = 0.05;
+const colors = {
+    U: 0xffff00,
+    D: 0xffffff,
+    F: 0x00ff00,
+    B: 0x0000ff,
+    L: 0xff8000,
+    R: 0xff0000,
+};
+
+function createCubie(x,y,z){
+    const materials = [
+        new THREE.MeshBasicMaterial({color:colors.R}),
+        new THREE.MeshBasicMaterial({color:colors.L}),
+        new THREE.MeshBasicMaterial({color:colors.U}),
+        new THREE.MeshBasicMaterial({color:colors.D}),
+        new THREE.MeshBasicMaterial({color:colors.F}),
+        new THREE.MeshBasicMaterial({color:colors.B}),
+    ];
+    const geo = new THREE.BoxGeometry(size,size,size);
+    const m = new THREE.Mesh(geo, materials);
+    m.position.set(x, y, z);
+    scene.add(m);
+    return m;
+}
+
+for(let x=-1;x<=1;x++){
+    for(let y=-1;y<=1;y++){
+        for(let z=-1;z<=1;z++){
+            if(x===0&&y===0&&z===0) continue;
+            cubies.push(createCubie(x*(size+gap), y*(size+gap), z*(size+gap)));
+        }
+    }
+}
+
+let moveQueue=[];
+let animating=false;
+let solving=false;
+
+function rotateLayer(axis,index,dir,callback){
+    const group = new THREE.Group();
+    const eps = 0.1;
+    cubies.forEach(c=>{
+        if(Math.abs(c.position[axis] - index*(size+gap)) < eps){
+            group.add(c);
+        }
+    });
+    scene.add(group);
+    const target = dir*Math.PI/2;
+    let angle=0;
+    animating=true;
+    function animate(){
+        if(Math.abs(angle) >= Math.abs(target)){
+            group.rotation[axis]+=target-angle;
+            group.updateMatrixWorld();
+            while(group.children.length){
+                const child=group.children[0];
+                child.applyMatrix4(group.matrix);
+                scene.add(child);
+            }
+            scene.remove(group);
+            animating=false;
+            if(callback) callback();
+            return;
+        }
+        const step = dir*Math.PI/20;
+        angle+=step;
+        group.rotation[axis]+=step;
+        renderer.render(scene,camera);
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+function scramble(){
+    const faces=['x','y','z'];
+    moveQueue=[];
+    for(let i=0;i<20;i++){
+        const axis=faces[Math.floor(Math.random()*3)];
+        const index=[-1,0,1][Math.floor(Math.random()*3)];
+        const dir=Math.random()>0.5?1:-1;
+        moveQueue.push({axis,index,dir});
+    }
+    playMoves(moveQueue.slice());
+}
+
+function playMoves(moves){
+    if(moves.length===0){
+        animating=false;
+        return;
+    }
+    if(animating) return;
+    const m = moves.shift();
+    rotateLayer(m.axis,m.index,m.dir,()=>playMoves(moves));
+}
+
+function solve(){
+    if(animating||moveQueue.length===0) return;
+    solving=true;
+    const rev = moveQueue.slice().reverse().map(m=>({axis:m.axis,index:m.index,dir:-m.dir}));
+    playMoves(rev);
+    moveQueue=[];
+}
+
+function step(){
+    if(animating||moveQueue.length===0) return;
+    const m = moveQueue.shift();
+    rotateLayer(m.axis,m.index,m.dir);
+}
+
+document.getElementById('scramble').onclick=scramble;
+document.getElementById('solve').onclick=solve;
+document.getElementById('step').onclick=step;
+
+function render(){
+    requestAnimationFrame(render);
+    renderer.render(scene,camera);
+}
+render();
+</script>
+</body>
+</html>

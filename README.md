@@ -13,3 +13,5 @@ Ta aplikacja prezentuje interaktywną kostkę Rubika zbudowaną w bibliotece **t
 - `rubiks.js` – skompilowany kod obsługujący logikę kostki (pochodzi z projektu [pengfeiw/rubiks-cube](https://github.com/pengfeiw/rubiks-cube)).
 
 Kod pochodzi z projektu na licencji MIT i został dostosowany do potrzeb przykładu.
+
+- `cube.html` – uproszczony przykład kostki z przyciskami Pomieszaj, Rozwiąż i Krok.
