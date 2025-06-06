@@ -14,4 +14,8 @@ Ta aplikacja prezentuje interaktywną kostkę Rubika zbudowaną w bibliotece **t
 
 Kod pochodzi z projektu na licencji MIT i został dostosowany do potrzeb przykładu.
 
-- `cube.html` – uproszczony przykład kostki z przyciskami Pomieszaj, Rozwiąż i Krok.
+- `cube.html` – uproszczony przykład kostki z przyciskami Pomieszaj, Rozwiąż i Krok. 
+  Aby obejrzeć rozwiązanie ruch po ruchu, najpierw kliknij **Rozwiąż**, a następnie
+  używaj przycisku **Krok** do wykonywania kolejnych przesunięć.
+  Każde kliknięcie wykonuje pojedynczy ćwierćobrot,
+  więc na przykład ruch "R2" wymaga dwóch kroków.
