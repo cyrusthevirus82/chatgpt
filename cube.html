@@ -15,6 +15,8 @@ button { margin-right:5px; padding:5px 10px; }
 <button id="scramble">Pomieszaj</button>
 <button id="solve">Rozwiąż</button>
 <button id="step">Krok</button>
+<button id="reset">Resetuj</button>
+<span id="nextMove" style="color:white;margin-left:10px;"></span>
 </div>
 <canvas id="canvas"></canvas>
 <script src="https://unpkg.com/cubejs@1.3.2/lib/cube.js"></script>
@@ -60,6 +62,7 @@ function createCubie(x,y,z){
     const geo = new THREE.BoxGeometry(size,size,size);
     const m = new THREE.Mesh(geo, materials);
     m.position.set(x, y, z);
+    m.userData.initPos = new THREE.Vector3(x, y, z);
     scene.add(m);
     return m;
 }
@@ -76,6 +79,7 @@ for(let x=-1;x<=1;x++){
 let moveQueue=[];
 let animating=false;
 let cubeState=new Cube();
+let mode='idle';
 Cube.initSolver();
 const moveMap={
     U:{axis:'y',index:1,dir:-1},
@@ -136,9 +140,11 @@ function rotateLayer(axis,index,dir,callback){
 }
 
 function scramble(){
+    mode='scramble';
     const alg=Cube.scramble();
     moveQueue=algoToMoves(alg);
     playMoves(moveQueue.slice());
+    updateNextMove();
 }
 
 function playMoves(moves){
@@ -165,10 +171,14 @@ function playMoves(moves){
 
 function solve(){
     if(animating) return;
+    mode='solve';
     const alg=cubeState.solve();
     moveQueue=algoToMoves(alg);
+    currentMove=null;
+    remainingTurns=0;
     // nie odtwarzaj automatycznie, aby mozna bylo uzywac przycisku Krok
     // playMoves(moveQueue.slice());
+    updateNextMove();
 }
 
 let currentMove=null;
@@ -180,6 +190,7 @@ function step(){
         if(moveQueue.length===0) return;
         currentMove = moveQueue.shift();
         remainingTurns = currentMove.turns;
+        updateNextMove();
     }
     rotateLayer(currentMove.axis, currentMove.index, currentMove.dir, ()=>{
         remainingTurns--;
@@ -187,12 +198,44 @@ function step(){
             cubeState.move(currentMove.notation);
             currentMove = null;
         }
+        updateNextMove();
     });
+}
+
+function resetCube(){
+    if(animating) return;
+    cubeState = new Cube();
+    moveQueue = [];
+    currentMove = null;
+    remainingTurns = 0;
+    mode = 'idle';
+    cubies.forEach(c=>{
+        c.position.copy(c.userData.initPos);
+        c.rotation.set(0,0,0);
+    });
+    renderer.render(scene,camera);
+    updateNextMove();
+}
+
+function updateNextMove(){
+    const span=document.getElementById('nextMove');
+    if(mode!== 'solve'){
+        span.textContent='';
+        return;
+    }
+    if(remainingTurns>0 && currentMove){
+        span.textContent=currentMove.notation;
+    }else if(moveQueue.length>0){
+        span.textContent=moveQueue[0].notation;
+    }else{
+        span.textContent='';
+    }
 }
 
 document.getElementById('scramble').onclick=scramble;
 document.getElementById('solve').onclick=solve;
 document.getElementById('step').onclick=step;
+document.getElementById('reset').onclick=resetCube;
 
 function render(){
     requestAnimationFrame(render);
